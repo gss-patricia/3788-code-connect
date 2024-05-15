@@ -25,6 +25,8 @@ export default function Home({ searchParams }) {
   } = useQuery({
     queryKey: ["posts", currentPage],
     queryFn: () => fetchPosts({ page: currentPage }),
+    staleTime: 2000,
+    refetchOnWindowFocus: false,
   });
 
   const ratingsAndCartegoriesMap = null;

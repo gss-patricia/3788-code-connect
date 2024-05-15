@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueries } from "@tanstack/react-query";
 import { CardPost } from "@/components/CardPost";
 import { Spinner } from "@/components/Spinner";
 import styles from "./page.module.css";
@@ -10,6 +10,16 @@ const fetchPosts = async ({ page }) => {
   const results = await fetch(`http://localhost:3000/api/posts?page=${page}`);
 
   const data = await results.json();
+
+  return data;
+};
+
+export const fetchPotsRating = async ({ postId }) => {
+  const results = await fetch(
+    `http://localhost:3000/api/post?postId=${postId}`
+  );
+
+  const data = results.json();
 
   return data;
 };
@@ -26,8 +36,20 @@ export default function Home({ searchParams }) {
     queryKey: ["posts", currentPage],
     queryFn: () => fetchPosts({ page: currentPage }),
     staleTime: 2000,
-    refetchOnWindowFocus: false,
   });
+
+  const postRatingQueries = useQueries({
+    queries:
+      posts?.data.length > 0
+        ? posts.data.map((post) => ({
+            queryKey: ["postHome", post.id],
+            queryFn: () => fetchPotsRating({ postId: post.id }),
+            enabled: !!post.id,
+          }))
+        : [],
+  });
+
+  console.log("postRatingQueries", postRatingQueries);
 
   const ratingsAndCartegoriesMap = null;
 

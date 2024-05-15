@@ -14,7 +14,7 @@ const fetchPosts = async ({ page }) => {
   return data;
 };
 
-export const fetchPotsRating = async ({ postId }) => {
+export const fetchPostRating = async ({ postId }) => {
   const results = await fetch(
     `http://localhost:3000/api/post?postId=${postId}`
   );
@@ -43,15 +43,18 @@ export default function Home({ searchParams }) {
       posts?.data.length > 0
         ? posts.data.map((post) => ({
             queryKey: ["postHome", post.id],
-            queryFn: () => fetchPotsRating({ postId: post.id }),
+            queryFn: () => fetchPostRating({ postId: post.id }),
             enabled: !!post.id,
           }))
         : [],
   });
 
-  console.log("postRatingQueries", postRatingQueries);
-
-  const ratingsAndCartegoriesMap = null;
+  const ratingsAndCartegoriesMap = postRatingQueries?.reduce((acc, query) => {
+    if (!query.isPending && query.data && query.data.id) {
+      acc[query.data.id] = query.data;
+    }
+    return acc;
+  }, {});
 
   return (
     <main className={styles.grid}>

@@ -5,13 +5,28 @@ import styles from "./replies.module.css";
 import { Comment } from "../Comment";
 import { ReplyModal } from "../ModalReply";
 import { useFetchReplies } from "@/app/hooks/useFetchReplies";
+import { fetchReplies } from "@/app/hooks/useFetchReplies";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const Replies = ({ comment, slug }) => {
+  const queryClient = useQueryClient();
+
   const [showReplies, setShowReplies] = useState(false);
 
   const { data: replies } = useFetchReplies(
     showReplies ? { commentId: comment.id, slug } : {}
   );
+
+  const prefetch = () => {
+    if (!showReplies) {
+      queryClient.prefetchQuery({
+        queryKey: ["replies", comment.id, slug],
+        queryFn: () => fetchReplies({ commentId: comment.id, slug }),
+        retry: 5,
+        retryDelay: 500,
+      });
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -19,6 +34,7 @@ export const Replies = ({ comment, slug }) => {
         <button
           className={styles.btn}
           onClick={() => setShowReplies(!showReplies)}
+          onMouseOver={prefetch}
         >
           {showReplies ? "Ocultar" : "Ver"} respostas
         </button>

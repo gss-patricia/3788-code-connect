@@ -18,6 +18,5 @@ export const useFetchReplies = ({ commentId, slug }) => {
     queryFn: async () => fetchReplies({ commentId, slug }),
     enabled: !!commentId && !!slug,
     retry: 5,
-    retryDelay: 5000,
   });
 };
